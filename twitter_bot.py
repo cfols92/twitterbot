@@ -1,10 +1,10 @@
 import tweepy
 import time
 
-consumer_key = 'fHMwl5izOPQ6T57bvC3gJTfVy'
-consumer_secret = 'RCcHkdBz6PrJQK03UosfefhVLi5z7PyRqaisoHp9movHQY4Kcz'
-access_token = '1230189679636615170-05B5krNtGB58R6cFXyXAFy8pmimP2y'
-access_token_secret = 'ABlrkKlXH1xBgRQTQadV8pYjvjrHrxj38H3Lz34YFoQCH'
+consumer_key = ''
+consumer_secret = ''
+access_token = ''
+access_token_secret = ''
 
 
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
@@ -29,5 +29,7 @@ while True:
     for tweet in api.home_timeline(since_id):
         api.retweet(tweet.id)
         since_id = tweet.id
+
+    print("updated")
     
-    sleep(60)
+    time.sleep(60)
