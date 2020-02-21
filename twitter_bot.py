@@ -2,17 +2,18 @@
 
 import tweepy
 import time
+from datetime import datetime
 
-consumer_key = ''
-consumer_secret = ''
-access_token = ''
-access_token_secret = ''
+consumer_key = 'fHMwl5izOPQ6T57bvC3gJTfVy'
+consumer_secret = 'RCcHkdBz6PrJQK03UosfefhVLi5z7PyRqaisoHp9movHQY4Kcz'
+access_token = '1230189679636615170-05B5krNtGB58R6cFXyXAFy8pmimP2y'
+access_token_secret = 'ABlrkKlXH1xBgRQTQadV8pYjvjrHrxj38H3Lz34YFoQCH'
 
 
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 
-api = tweepy.API(auth, wait_on_rate_limit=True)
+api = tweepy.API(auth, wait_on_rate_limit = True, wait_on_rate_limit_notify = True)
 
 try:
     api.verify_credentials()
@@ -32,10 +33,10 @@ since_id = api.home_timeline()[0].id
 # api.hometimeline() returns a list of status objects
 # to get the most recent one, access the first element in the list
 
-# initialize count to zero
-count = 0
-
 while True:
+
+    # initialize count to zero
+    count = 0
 
     # loop through all tweets since the last "since_id"
     for tweet in api.home_timeline(since_id):
@@ -45,6 +46,7 @@ while True:
         # try to retweet
         try:
             # do not retweet retweets
+            # every retweet starts with "RT"
             if "RT" not in tweet.text:
                 api.retweet(tweet.id)
         
@@ -57,8 +59,9 @@ while True:
         since_id = tweet.id
         count = count + 1
 
-    print("updated\nfound " + str(count) + " new tweets")
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
 
-    count = 0
+    print("updated at " + current_time + "\nfound " + str(count) + " new tweets")
     
     time.sleep(60)
