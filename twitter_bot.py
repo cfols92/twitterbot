@@ -13,7 +13,7 @@ access_token_secret = ''
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 
-api = tweepy.API(auth, wait_on_rate_limit = True, wait_on_rate_limit_notify = True)
+api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
 
 try:
     api.verify_credentials()
@@ -38,7 +38,8 @@ while True:
     # initialize count to zero
     count = 0
 
-    print("There is/are " + str(len(api.home_timeline(since_id))) + " tweet(s) being processed")
+    print("There is/are " + str(len(api.home_timeline(since_id))) +
+          " tweet(s) being processed")
 
     # loop through all tweets since the last "since_id"
     for tweet in api.home_timeline(since_id):
@@ -48,33 +49,58 @@ while True:
         # Retweet original tweets that have gained at least 20 favorites in the tweet's first 10 minutes
 
         # create a condition here where the tweet must be over 10 minutes old
-        if datetime.datetime.utcnow() - tweet.created_at >= datetime.timedelta(0,10*60):
+        if datetime.datetime.utcnow() - tweet.created_at >= datetime.timedelta(0, 10*60):
+
+            lowerTweet = str.lower(tweet.tweet)
+
+            speicalWords = ["gainesville",
+                            "university of florida", "gator", "swamp", "🐊"]
+
+            containsSpecialWord = False
+
+            for word in speicalWords:
+                print(count)
+                if word in lowerTweet:
+                    containsSpecialWord = True
+                    specialWord = word
+                    break
 
             try:
                 # do not retweet retweets
                 # every retweet starts with "RT @"
                 if "RT @" not in tweet.text:
-                    if tweet.favorite_count >= 20: 
+                    # retweet it tweet has over 19 likes
+                    if tweet.favorite_count >= 20:
                         api.retweet(tweet.id)
-                        print("Tweet " + str(count) + ": " + "\"" + tweet.text + "\"" + " from @" + tweet.user.screen_name + " was retweeted. Had " + str(tweet.favorite_count) + " favorite(s).")
+                        print("Tweet " + str(count) + ": " + "\"" + tweet.text + "\"" + " from @" +
+                              tweet.user.screen_name + " was retweeted. Had " + str(tweet.favorite_count) + " favorite(s).")
+                    # retweet if tweet contains certain key words
+                    elif containsSpecialWord == True:
+                        api.retweet(tweet.id)
+                        print("Tweet " + str(count) + ": " + "\"" + tweet.text + "\"" + " from @" +
+                              tweet.user.screen_name + " was retweeted. Contained the special word " + specialWord + " but only had " + str(tweet.favorite_count) + " favorite(s).")
                     else:
-                        print("Tweet " + str(count) + ": " + "\"" + tweet.text + "\"" + " from @" + tweet.user.screen_name + " was not retweeted. Had " + str(tweet.favorite_count) + " favorite(s).")
+                        print("Tweet " + str(count) + ": " + "\"" + tweet.text + "\"" + " from @" +
+                              tweet.user.screen_name + " was not retweeted. Had " + str(tweet.favorite_count) + " favorite(s) and did not contain a special word.")
                 else:
-                    print("Tweet " + str(count) + ": " + "\"" + tweet.text + "\"" + " from @" + tweet.user.screen_name + " is a retweet, so it will be ignored.")
+                    print("Tweet " + str(count) + ": " + "\"" + tweet.text + "\"" + " from @" +
+                          tweet.user.screen_name + " is a retweet, so it will be ignored.")
             # if the tweet has already been retweeted, and error will be thrown
             except:
-                print("Error was thrown because the tweet being retweeted has already been retweeted")
+                print(
+                    "Error was thrown because the tweet being retweeted has already been retweeted")
                 since_id = tweet.id
                 continue
-            
+
             since_id = tweet.id
         else:
-            print("Tweet " + str(count) + ": " + "\"" + tweet.text + "\"" + " from @" + tweet.user.screen_name + " is less than 10 minutes old.")
+            print("Tweet " + str(count) + ": " + "\"" + tweet.text + "\"" +
+                  " from @" + tweet.user.screen_name + " is less than 10 minutes old.")
 
     now = datetime.datetime.now()
     current_time = now.strftime("%H:%M:%S")
 
     print("updated at " + current_time)
     print("____________________________________________________________________")
-    
+
     time.sleep(60*2)
