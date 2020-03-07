@@ -46,31 +46,41 @@ while True:
 
         count = count + 1
 
-        # Retweet original tweets that have gained at least 20 favorites in the tweet's first 10 minutes
+        # Retweet original tweets that have gained at least 8 favorites in the tweet's first 3 minutes
 
         # create a condition here where the tweet must be over 10 minutes old
-        if datetime.datetime.utcnow() - tweet.created_at >= datetime.timedelta(0, 10*60):
+        if datetime.datetime.utcnow() - tweet.created_at >= datetime.timedelta(0, 3*60):
 
-            lowerTweet = str.lower(tweet.tweet)
+            lowerTweet = str.lower(tweet.text)
+            lowerTweetList = lowerTweet.split(" ")
 
-            speicalWords = ["gainesville",
-                            "university of florida", "gator", "swamp", "🐊"]
+            specialWordsExact = ["uf"]
+            specialWordsInexact = ["gainesville", "university of florida", "gator", "swamp", "🐊", "commit","chomp","mullen"]
 
             containsSpecialWord = False
 
-            for word in speicalWords:
-                print(count)
+            for word in specialWordsInexact:
                 if word in lowerTweet:
                     containsSpecialWord = True
                     specialWord = word
                     break
+            
+            if containsSpecialWord == False:
+                for tweetWord in lowerTweetList:
+                    for specialWordExact in specialWordsExact:
+                        if tweetWord == specialWordExact:
+                            containsSpecialWord = True
+                            specialWord = tweetWord
+                            break
+                    if containsSpecialWord:
+                        break
 
             try:
                 # do not retweet retweets
                 # every retweet starts with "RT @"
                 if "RT @" not in tweet.text:
                     # retweet it tweet has over 19 likes
-                    if tweet.favorite_count >= 20:
+                    if tweet.favorite_count >= 8:
                         api.retweet(tweet.id)
                         print("Tweet " + str(count) + ": " + "\"" + tweet.text + "\"" + " from @" +
                               tweet.user.screen_name + " was retweeted. Had " + str(tweet.favorite_count) + " favorite(s).")
@@ -95,7 +105,7 @@ while True:
             since_id = tweet.id
         else:
             print("Tweet " + str(count) + ": " + "\"" + tweet.text + "\"" +
-                  " from @" + tweet.user.screen_name + " is less than 10 minutes old.")
+                  " from @" + tweet.user.screen_name + " is less than 3 minutes old.")
 
     now = datetime.datetime.now()
     current_time = now.strftime("%H:%M:%S")
